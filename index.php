@@ -115,6 +115,10 @@ class Fonts {
 
     // output the transformed content
     protected function output() {
+        if (!$this->mode) {
+            return $this->body; // save transcoding for nothing
+        }
+
         return $this->encode($this->transform($this->decode($this->body)));
     }
 
