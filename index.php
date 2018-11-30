@@ -4,12 +4,34 @@ function getRequestHeaders() {
     $headers = array();
     foreach ($_SERVER as $key => $value) {
         if (substr($key, 0, 5) == 'HTTP_' && $key != 'HTTP_HOST' && $key != 'HTTP_COOKIE') {
-            // @todo be able to decode brotli?
-            if ($key == 'HTTP_ACCEPT_ENCODING') { $value = str_replace(', br', '', $value); }
+            if ($key == 'HTTP_ACCEPT_ENCODING' && !extension_loaded('brotli')) { $value = str_replace(', br', '', $value); }
             $headers[] = str_replace('_', '-', substr($key, 5)) . ': ' . $value;
         }
     }
     return $headers;
+}
+
+function decode($string, $encoding) {
+    return transcode($string, $encoding, array(
+        'gzip' => 'gzdecode',
+        'br'   => 'brotli_uncompress',
+    ));
+}
+
+function encode($string, $encoding) {
+    return transcode($string, $encoding, array(
+        'gzip' => 'gzencode',
+        'br'   => 'brotli_compress',
+    ));
+}
+
+function transcode($string, $encoding, array $funcs) {
+    if (isset($funcs[$encoding])) {
+        $func = $funcs[$encoding];
+        return $func($string);
+    }
+
+    return $string;
 }
 
 $body = $encoding = '';
@@ -29,8 +51,8 @@ curl_setopt_array($ch, array(
             header($header);
         }
 
-        if (trim($header) == 'Content-Encoding: gzip') {
-            $encoding = 'gzip';
+        if (substr($header, 0, 16) == 'Content-Encoding') {
+            $encoding = trim(substr($header, 17));
         }
 
         return strlen($header);
@@ -44,7 +66,4 @@ curl_setopt_array($ch, array(
 curl_exec($ch);
 curl_close($ch);
 
-if ($encoding == 'gzip') { $body = gzdecode($body); }
-$body = str_replace('}', "  font-display: swap;\n}", $body);
-if ($encoding == 'gzip') { $body = gzencode($body); }
-echo $body;
+echo encode(str_replace('}', "  font-display: swap;\n}", decode($body, $encoding)), $encoding);
