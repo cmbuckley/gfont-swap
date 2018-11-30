@@ -17,13 +17,13 @@ Install the script on a server with gzip and ideally [brotli](https://github.com
 Wherever you would request an import of a Google font:
 
 ```css
-@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,300i,400');
 ```
 
 Instead, use your own script path, passing the appropriate parameters:
 
 ```css
-@import url('https://example.com/gfont-swap/?family=Roboto&display=swap');
+@import url('https://example.com/gfont-swap/?family=Roboto:300,300i,400&display=swap');
 ```
 
 ## Further reading
