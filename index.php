@@ -1,8 +1,13 @@
 <?php
 
 class Fonts {
+    // server variables
     protected $server;
+
+    // font-display mode
     protected $mode = '';
+
+    // response data
     protected $body = '';
     protected $encoding = '';
 
@@ -22,6 +27,7 @@ class Fonts {
     public function getRequestHeaders() {
         $headers = array();
         foreach ($this->server as $key => $value) {
+            // find all request headers in server variables
             if (substr($key, 0, 5) == 'HTTP_' && $key != 'HTTP_HOST' && $key != 'HTTP_COOKIE') {
                 // don't request brotli encoding if server can't handle it
                 if ($key == 'HTTP_ACCEPT_ENCODING' && !extension_loaded('brotli')) {
@@ -34,6 +40,7 @@ class Fonts {
         return $headers;
     }
 
+    // decode a string according to specified encoding
     protected function decode($string) {
         return $this->transcode($string, array(
             'gzip' => 'gzdecode',
@@ -41,6 +48,7 @@ class Fonts {
         ));
     }
 
+    // encode a string according to specified encoding
     protected function encode($string) {
         return $this->transcode($string, array(
             'gzip' => 'gzencode',
@@ -48,6 +56,7 @@ class Fonts {
         ));
     }
 
+    // perform a string function according to encoding
     protected function transcode($string, array $funcs) {
         if (isset($funcs[$this->encoding])) {
             $func = $funcs[$this->encoding];
@@ -57,6 +66,7 @@ class Fonts {
         return $string;
     }
 
+    // add font-display declaration if required
     protected function transform($string) {
         if (!$this->mode) {
             return $string;
@@ -65,6 +75,7 @@ class Fonts {
         return str_replace('}', "  font-display: $this->mode;\n}", $string);
     }
 
+    // capture response headers from curl request (one call per header field)
     protected function writeCurlHeader($ch, $header) {
         // store the encoding for later
         if (substr($header, 0, 16) == 'Content-Encoding') {
@@ -75,11 +86,13 @@ class Fonts {
         return strlen($header);
     }
 
+    // capture response body from curl request (can arrive in multiple chunks)
     protected function writeCurlBody($ch, $chunk) {
         $this->body .= $chunk;
         return strlen($chunk);
     }
 
+    // make the font request
     public function request() {
         $ch = curl_init();
         curl_setopt_array($ch, array(
@@ -100,6 +113,7 @@ class Fonts {
         return $this->output();
     }
 
+    // output the transformed content
     protected function output() {
         return $this->encode($this->transform($this->decode($this->body)));
     }
