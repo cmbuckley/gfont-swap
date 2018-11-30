@@ -2,11 +2,21 @@
 
 class Fonts {
     protected $server;
+    protected $mode = '';
     protected $body = '';
     protected $encoding = '';
 
-    public function __construct($server) {
+    public function __construct($server, $mode = 'swap') {
         $this->server = $server;
+        $this->setMode($mode);
+    }
+
+    public function setMode($mode) {
+        if (!in_array($mode, array('auto', 'block', 'swap', 'fallback', 'optional'))) {
+            $mode = '';
+        }
+
+        $this->mode = $mode;
     }
 
     public function getRequestHeaders() {
@@ -24,14 +34,14 @@ class Fonts {
         return $headers;
     }
 
-    public function decode($string) {
+    protected function decode($string) {
         return $this->transcode($string, array(
             'gzip' => 'gzdecode',
             'br'   => 'brotli_uncompress',
         ));
     }
 
-    public function encode($string) {
+    protected function encode($string) {
         return $this->transcode($string, array(
             'gzip' => 'gzencode',
             'br'   => 'brotli_compress',
@@ -45,6 +55,14 @@ class Fonts {
         }
 
         return $string;
+    }
+
+    protected function transform($string) {
+        if (!$this->mode) {
+            return $string;
+        }
+
+        return str_replace('}', "  font-display: $this->mode;\n}", $string);
     }
 
     protected function writeCurlHeader($ch, $header) {
@@ -83,7 +101,7 @@ class Fonts {
     }
 
     protected function output() {
-        return $this->encode(str_replace('}', "  font-display: swap;\n}", $this->decode($this->body)));
+        return $this->encode($this->transform($this->decode($this->body)));
     }
 
     public function __toString() {
@@ -91,4 +109,4 @@ class Fonts {
     }
 }
 
-echo new Fonts($_SERVER);
+echo new Fonts($_SERVER, isset($_GET['display']) ? $_GET['display'] : '');
