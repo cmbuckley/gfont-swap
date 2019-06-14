@@ -72,6 +72,11 @@ class Fonts {
             return $string;
         }
 
+        // Google announced support; do nothing
+        if (strpos($string, 'font-display:')) {
+            return $string;
+        }
+
         return str_replace('}', "  font-display: $this->mode;\n}", $string);
     }
 
