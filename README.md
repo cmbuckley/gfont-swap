@@ -1,5 +1,7 @@
 # gfont-swap
 
+**Since Google have [announced support for this feature](https://github.com/google/fonts/issues/358#issuecomment-490730397), this service is no longer used or maintained.**
+
 This little script adds `font-display: swap;` to declaration blocks returned by [Google Fonts](https://developers.google.com/fonts/).
 
 The [`font-display` property](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display) controls how a font should be displayed while waiting for assets to load. Typically, browsers will not display the text until the asset has loaded, which prevents a double paint where users see a flash of unstyled text (FOUT), but does result in a period where the text is invisible (FOIT).
