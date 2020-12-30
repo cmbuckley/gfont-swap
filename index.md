@@ -4,6 +4,7 @@ title: gfont-swap
 ---
 
 **Since Google have [announced support for this feature](https://github.com/google/fonts/issues/358#issuecomment-490730397), this service is no longer used or maintained.**
+{:.warning}
 
 This little script adds `font-display: swap;` to declaration blocks returned by [Google Fonts](https://developers.google.com/fonts/).
 
