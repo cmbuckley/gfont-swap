@@ -6,6 +6,7 @@ baseurl: /gfont-swap
 
 repository: cmbuckley/gfont-swap
 remote_theme: "cmbuckley/cmbuckley.github.io"
+suppress_fingerprints: true
 
 plugins:
   - jekyll-github-metadata
